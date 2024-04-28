@@ -1,10 +1,65 @@
 import React from 'react';
-import Header from './Header'
+import {createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile  } from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
+import Header from './Header';
+import {checkValidData} from '../Utils/Validate'
+import {auth } from '../Utils/Firebase'
+import { useDispatch } from 'react-redux';
+import {addUser} from '../Utils/UserSlice'
 
 const LogIn = () => {
-  const [isSignUpPage,setIsSignUpPage] = React.useState(false)
-  const handleSignUp = () => {
+  const [isSignUpPage,setIsSignUpPage] = React.useState(false);
+  const [errorMessage,setErrorMessage] = React.useState(null)
+  const email = React.useRef(null);
+  const password = React.useRef(null);
+  const name = React.useRef(null);
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
+
+
+  const toggleSignUpForm = () => {
     setIsSignUpPage(!isSignUpPage)
+  }
+
+  const handleButtonClick = () => {
+      const message = checkValidData(email.current.value,password.current.value);
+      setErrorMessage(message);
+       if(message) return;
+       if(isSignUpPage) {
+        createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          updateProfile(auth.currentUser, {
+            displayName: name.current.value,
+          }).then(() => {
+            const {uid, email,displayName}= auth.currentUser;
+        dispatch(addUser({uid : uid,email : email,displayName: displayName}));
+            navigate('/browse')
+          }).catch((error) => {
+            setErrorMessage(error.message)
+          });
+         
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + "-" + errorMessage)
+        
+        });  
+       }
+       else
+       {
+        signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+  .then((userCredential) => {
+    const user = userCredential.user;
+    navigate('/browse')
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode + "-" + errorMessage)
+  });
+       }
   }
   return (
     <div >
@@ -14,16 +69,18 @@ const LogIn = () => {
        alt="logo"
       />
       </div>
-      <form className='w-3/12 absolute p-12 bg-black my-36 mx-auto right-0 left-0 text-white opacity-80 rounded-lg'>
+      <form onSubmit={(e)=>e.preventDefault()} className='w-3/12 absolute p-12 bg-black my-36 mx-auto right-0 left-0 text-white opacity-80 rounded-lg'>
       <h1 className='font-bold text-3xl py-4'>{isSignUpPage? 'Sign Up' : 'Sign In'}</h1>
-      {isSignUpPage && <input type="text" placeholder='Full Name' className='p-4 my-4 w-full bg-gray-800'/>}
-      <input type="text" placeholder='Email Address' className='p-4 my-4 w-full bg-gray-800'/>
-      <input type="password" placeholder='Password' className='p-4 my-4 w-full bg-gray-800'/>
-      <button className='p-4 my-6 w-full bg-red-700 rounded-lg'>{isSignUpPage? 'Sign Up' : 'Sign In'}</button>
+      {isSignUpPage && <input ref={name} type="text" placeholder='Full Name' className='p-4 my-4 w-full bg-gray-800'/>}
+      <input ref={email} type="text" placeholder='Email Address' className='p-4 my-4 w-full bg-gray-800'/>
+      <input ref={password} type="password" placeholder='Password' className='p-4 my-4 w-full bg-gray-800'/>
+      <p className='text-red-500 font-bold text-lg py-2'>{errorMessage}</p>
+      <button onClick={handleButtonClick} className='p-4 my-6 w-full bg-red-700 rounded-lg'>{isSignUpPage? 'Sign Up' : 'Sign In'}</button>
       
-        <p className='py-4' onClick={handleSignUp}>
-          {!isSignUpPage ? 'New to Netflix?' : 'Already Registered ?'} <span className='hover:underline cursor-pointer'>{!isSignUpPage ? 'Sign Up Now' : 'Sign In Now'}</span>
-        </p>
+      <p className='py-4 cursor-pointer' onClick={toggleSignUpForm}>
+  {isSignUpPage ? 'Already Registered? Sign In Now' : 'New to Netflix? Sign Up Now'}
+</p>
+
       
       
       </form>
