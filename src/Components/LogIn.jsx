@@ -68,13 +68,13 @@ const LogIn = () => {
        alt="logo"
       />
       </div>
-      <form onSubmit={(e)=>e.preventDefault()} className='w-3/12 absolute p-12 bg-black my-36 mx-auto right-0 left-0 text-white opacity-80 rounded-lg'>
+      <form onSubmit={(e)=>e.preventDefault()} className='w-3/12 absolute p-12 bg-black my-36 mx-auto right-0 left-0 text-white opacity-80 rounded-lg flex flex-wrap'>
       <h1 className='font-bold text-3xl py-4'>{isSignUpPage? 'Sign Up' : 'Sign In'}</h1>
-      {isSignUpPage && <input ref={name} type="text" placeholder='Full Name' className='p-4 my-4 w-full bg-gray-800'/>}
-      <input ref={email} type="text" placeholder='Email Address' className='p-4 my-4 w-full bg-gray-800'/>
-      <input ref={password} type="password" placeholder='Password' className='p-4 my-4 w-full bg-gray-800'/>
+      {isSignUpPage && <input ref={name} type="text" placeholder='Full Name' className='p-4 my-4 w-screen bg-gray-800'/>}
+      <input ref={email} type="text" placeholder='Email Address' className='p-4 my-4 w-screen bg-gray-800'/>
+      <input ref={password} type="password" placeholder='Password' className='p-4 my-4 w-screen bg-gray-800'/>
       <p className='text-red-500 font-bold text-lg py-2'>{errorMessage}</p>
-      <button onClick={handleButtonClick} className='p-4 my-6 w-full bg-red-700 rounded-lg'>{isSignUpPage? 'Sign Up' : 'Sign In'}</button>
+      <button onClick={handleButtonClick} className='p-4 my-6 w-screen bg-red-700 rounded-lg'>{isSignUpPage? 'Sign Up' : 'Sign In'}</button>
       
       <p className='py-4 cursor-pointer' onClick={toggleSignUpForm}>
   {isSignUpPage ? 'Already Registered? Sign In Now' : 'New to Netflix? Sign Up Now'}
